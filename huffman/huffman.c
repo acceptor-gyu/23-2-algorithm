@@ -1,6 +1,39 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
 #define MAX_ELEMENT 200
+
+typedef struct {
+    char key[MAX_ELEMENT];
+    int value;
+} KeyValuePair;
+
+typedef struct {
+    KeyValuePair data[MAX_ELEMENT];
+    int size;
+} Map;
+
+void initializeMap(Map *map) {
+    map->size = 0;
+}
+
+void insertToMap(Map *map, const char *key, int value) {
+    if (map->size < MAX_ELEMENT) {
+        strcpy(map->data[map->size].key, key);
+        map->data[map->size].value = value;
+        map->size++;
+    }
+}
+
+int get(Map *map, const char *key) {
+    for (int i = 0; i < map->size; ++i) {
+        if (strcmp(map->data[i].key, key) == 0) {
+            return map->data[i].value;
+        }
+    }
+    return -1;
+}
 
 typedef struct TreeNode {
     int weight;
