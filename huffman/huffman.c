@@ -19,6 +19,14 @@ void initializeMap(Map *map) {
 }
 
 void insertToMap(Map *map, const char *key, int value) {
+
+    for (int i = 0; i < map->size; i++) {
+        if (map->data[i].key == key) {
+            map->data[i].value = 0;
+            return;
+        }
+    }
+
     if (map->size < MAX_ELEMENT) {
         strcpy(map->data[map->size].key, key);
         map->data[map->size].value = value;
