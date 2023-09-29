@@ -5,42 +5,52 @@
 #define MAX_ELEMENT 200
 
 typedef struct {
-    char key[MAX_ELEMENT];
+    char key;
     int value;
 } KeyValuePair;
 
 typedef struct {
-    KeyValuePair data[MAX_ELEMENT];
+    KeyValuePair *data;
     int size;
+    int capacity;
 } Map;
 
 void initializeMap(Map *map) {
+    map->data = (KeyValuePair *)malloc(sizeof(KeyValuePair) * MAX_ELEMENT);
     map->size = 0;
+    map->capacity = MAX_ELEMENT;
 }
 
-void insertToMap(Map *map, const char *key, int value) {
+void addToMap(Map *map, char key, int value) {
 
-    for (int i = 0; i < map->size; i++) {
-        if (map->data[i].key == key) {
-            map->data[i].value = 0;
+    // 맵의 사이즈를 기존 사이즈의 2배로 늘림.
+    if (map->size >= map->capacity) {
+        map->capacity *= 2;
+        map->data = (KeyValuePair *)realloc(map->data, sizeof(KeyValuePair) * map->capacity);
+    }
+
+    // 중복 처리
+    for (int i = 0; i < map->size - 1; ++i) {
+        if (map->data[map->size].key == key) {
+            map->data[map->size].value = 0;
             return;
         }
     }
 
-    if (map->size < MAX_ELEMENT) {
-        strcpy(map->data[map->size].key, key);
-        map->data[map->size].value = value;
-        map->size++;
-    }
+    map->data[map->size].key = key;
+    map->data[map->size].value = value;
+    map->size++;
 }
 
-int get(Map *map, const char *key) {
-    for (int i = 0; i < map->size; ++i) {
-        if (strcmp(map->data[i].key, key) == 0) {
+int getValue(Map *map, char key) {
+
+    for (int i = 0; i < map->size; i++) {
+        if (map->data[i].key == key) {
             return map->data[i].value;
         }
     }
-    return -1;
+
+    return 0;
 }
 
 typedef struct TreeNode {
@@ -220,5 +230,25 @@ int main(void) {
     int freq[] = { 4, 6, 8, 12, 15 };
 
     huffman_tree(freq, ch_list, 5);
+
+    Map map;
+    initializeMap(&map); // 초기 용량을 10으로 설정
+
+    addToMap(&map, 'a', 5);
+    addToMap(&map, 'b', 3);
+    addToMap(&map, 'c', 7);
+
+    // 'a'와 'c'에 대한 값을 가져와서 출력
+    printf("Value for 'a': %d\n", getValue(&map, 'a'));
+    printf("Value for 'c': %d\n", getValue(&map, 'c'));
+
+    for (int i = 0; i < map.size; i++) {
+        printf("%c ", ch_list[i]);
+        printf("%d  ", getValue(&map, map.data[i].key));
+    }
+
+    // 맵 메모리 해제
+    free(map.data);
+
     return 0;
 }
