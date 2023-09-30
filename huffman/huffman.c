@@ -224,6 +224,8 @@ void huffman_tree(int freq[], char ch_list[], int n) {
         insert_min_heap(heap, e);
     }
 
+    printf("\n");
+
     for (i = 1; i < n; i++) {
         // 최소값을 가지는 두 개의 노드를 삭제
         e1 = delete_min_heap(heap);
@@ -244,6 +246,10 @@ void huffman_tree(int freq[], char ch_list[], int n) {
 }
 
 int main(void) {
+
+
+    Map map;
+    initializeMap(&map);
 
     FILE *file = fopen("../huffman/huff_data/huff_B.txt", "r");
 
@@ -273,28 +279,14 @@ int main(void) {
         fscanf(file, "%d", &frequency);
         printf("%d\n", frequency);
 
+        addToMap(&map, character, frequency);
+
         if (feof(file)) {
             break;
         }
     }
 
     fclose(file);
-
-    Map map;
-    initializeMap(&map); // 초기 용량을 10으로 설정
-
-    addToMap(&map, 's', 4);
-    addToMap(&map, 'i', 6);
-    addToMap(&map, 'n', 12);
-    addToMap(&map, 't', 8);
-    addToMap(&map, 'e', 15);
-
-    printf("size: %d\n", map.size);
-
-    for (int i = 0; i < map.size; i++) {
-        printf("%c ", map.data[i].key);
-        printf("%d  ", getValue(&map, map.data[i].key));
-    }
 
     char keys[MAX_ELEMENT];
     int values[MAX_ELEMENT];
