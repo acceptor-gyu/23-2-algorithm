@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
 #define MAX_ELEMENT 200
+
+static int sequence = 1;
 
 typedef struct {
     char key;
@@ -75,6 +76,7 @@ int compare(const void *a, const void *b) {
 typedef struct TreeNode {
     int weight;
     char ch;
+    char* uuid;
     struct TreeNode *left;
     struct TreeNode *right;
 } TreeNode;
@@ -83,6 +85,7 @@ typedef struct {
     TreeNode* ptree;
     char ch;
     int key;
+    char* uuid;
 } element;
 
 typedef struct {
@@ -203,6 +206,21 @@ void print_codes(TreeNode* root, int codes[], int top) {
     }
 }
 
+void preorder_traversal(TreeNode* root) {
+
+    if (root == NULL) {
+        return;
+    }
+
+    if (root->ch != NULL) {
+        printf("%s ", root->uuid);
+        printf("문자: %c\n", root->ch);
+    }
+
+    preorder_traversal(root->left); // 왼쪽 서브트리 순회
+    preorder_traversal(root->right); // 오른쪽 서브트리 순회
+}
+
 // 허프만 코드 생성 함수
 void huffman_tree(int freq[], char ch_list[], int n) {
 
@@ -216,10 +234,16 @@ void huffman_tree(int freq[], char ch_list[], int n) {
     heap = create();
     init(heap);
 
+//    asprintf(&(map->data[map->size].uuid), "H-%d", sequence);
+
     for (i = 0; i < n; i++) {
         node = make_tree(NULL, NULL);
         e.ch = node->ch = ch_list[i];
         e.key = node->weight = freq[i];
+        asprintf(&node->uuid, "H-%d", sequence);
+        asprintf(&e.uuid, "H-%d", sequence);
+        sequence++;
+//        e.uuid = node->uuid =
         e.ptree = node;
         insert_min_heap(heap, e);
     }
@@ -240,6 +264,10 @@ void huffman_tree(int freq[], char ch_list[], int n) {
     }
 
     e = delete_min_heap(heap); // 최종 트리
+
+    element peekedElement = heap->heap[1];
+    preorder_traversal((TreeNode *) peekedElement.ptree);
+
     print_codes(e.ptree, codes, top);
     destroy_tree(e.ptree);
     free(heap);
