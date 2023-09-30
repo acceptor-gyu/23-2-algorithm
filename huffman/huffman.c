@@ -1,13 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
 #define MAX_ELEMENT 200
+
+static int sequence = 1;
 
 typedef struct {
     char key;
     int value;
+    char* uuid;
 } KeyValuePair;
 
 typedef struct {
@@ -41,6 +43,8 @@ void addToMap(Map *map, char key, int value) {
 
     map->data[map->size].key = key;
     map->data[map->size].value = value;
+    asprintf(&(map->data[map->size].uuid), "H-%d", sequence);
+    sequence++;
     map->size++;
 }
 
