@@ -67,6 +67,10 @@ void extractMapToArray(Map *map, char keys[], int values[], int *numValidPairs) 
     }
 }
 
+int compare(const void *a, const void *b) {
+    return ((KeyValuePair *)a)->value - ((KeyValuePair *)b)->value;
+}
+
 typedef struct TreeNode {
     int weight;
     char ch;
@@ -243,15 +247,13 @@ int main(void) {
     char ch_list[] = { 's', 'i', 'n', 't', 'e' };
     int freq[] = { 4, 6, 8, 12, 15 };
 
-
-
     Map map;
     initializeMap(&map); // 초기 용량을 10으로 설정
 
     addToMap(&map, 's', 4);
     addToMap(&map, 'i', 6);
-    addToMap(&map, 'n', 8);
-    addToMap(&map, 't', 12);
+    addToMap(&map, 'n', 12);
+    addToMap(&map, 't', 8);
     addToMap(&map, 'e', 15);
 
     printf("size: %d\n", map.size);
@@ -267,10 +269,15 @@ int main(void) {
 
     extractMapToArray(&map, keys, values, &countOfValidatedPairs);
 
+    KeyValuePair  *pairs = (KeyValuePair *)malloc(sizeof(KeyValuePair) * countOfValidatedPairs);
+
+    qsort(pairs, countOfValidatedPairs, sizeof(KeyValuePair), compare);
+
     huffman_tree(values, keys, countOfValidatedPairs);
 
     // 맵 메모리 해제
     free(map.data);
+    free(pairs);
 
     return 0;
 }
