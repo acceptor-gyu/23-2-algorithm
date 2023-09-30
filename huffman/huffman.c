@@ -1,6 +1,76 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
 #define MAX_ELEMENT 200
+
+typedef struct {
+    char key;
+    int value;
+} KeyValuePair;
+
+typedef struct {
+    KeyValuePair *data;
+    int size;
+    int capacity;
+} Map;
+
+void initializeMap(Map *map) {
+    map->data = (KeyValuePair *)malloc(sizeof(KeyValuePair) * MAX_ELEMENT);
+    map->size = 0;
+    map->capacity = MAX_ELEMENT;
+}
+
+void addToMap(Map *map, char key, int value) {
+
+    // 맵의 사이즈를 기존 사이즈의 2배로 늘림.
+    if (map->size >= map->capacity) {
+        map->capacity *= 2;
+        map->data = (KeyValuePair *)realloc(map->data, sizeof(KeyValuePair) * map->capacity);
+    }
+
+    // 중복 처리
+    for (int i = 0; i < map->size; ++i) {
+
+        if (map->data[i].key == key) {
+            map->data[i].value = 0;
+            return;
+        }
+    }
+
+    map->data[map->size].key = key;
+    map->data[map->size].value = value;
+    map->size++;
+}
+
+int getValue(Map *map, char key) {
+
+    for (int i = 0; i < map->size; i++) {
+        if (map->data[i].key == key) {
+            return map->data[i].value;
+        }
+    }
+
+    return 0;
+}
+
+void extractMapToArray(Map *map, char keys[], int values[], int *numValidPairs) {
+
+    *numValidPairs = 0;  // 유효한 쌍의 수를 추적하는 변수 초기화
+
+    for (int i = 0; i < map->size; i++) {
+        if (map->data[i].value != 0) {
+            keys[*numValidPairs] = map->data[i].key;
+            values[*numValidPairs] = map->data[i].value;
+            (*numValidPairs)++;
+        }
+    }
+}
+
+int compare(const void *a, const void *b) {
+    return ((KeyValuePair *)a)->value - ((KeyValuePair *)b)->value;
+}
 
 typedef struct TreeNode {
     int weight;
@@ -146,7 +216,7 @@ void huffman_tree(int freq[], char ch_list[], int n) {
     heap = create();
     init(heap);
 
-    for (i = 0; i<n; i++) {
+    for (i = 0; i < n; i++) {
         node = make_tree(NULL, NULL);
         e.ch = node->ch = ch_list[i];
         e.key = node->weight = freq[i];
@@ -154,7 +224,9 @@ void huffman_tree(int freq[], char ch_list[], int n) {
         insert_min_heap(heap, e);
     }
 
-    for (i = 1; i<n; i++) {
+    printf("\n");
+
+    for (i = 1; i < n; i++) {
         // 최소값을 가지는 두 개의 노드를 삭제
         e1 = delete_min_heap(heap);
         e2 = delete_min_heap(heap);
@@ -175,9 +247,62 @@ void huffman_tree(int freq[], char ch_list[], int n) {
 
 int main(void) {
 
-    char ch_list[] = { 's', 'i', 'n', 't', 'e' };
-    int freq[] = { 4, 6, 8, 12, 15 };
 
-    huffman_tree(freq, ch_list, 5);
+    Map map;
+    initializeMap(&map);
+
+    FILE *file = fopen("../huffman/huff_data/huff_B.txt", "r");
+
+    if (file == NULL) {
+        perror("파일 열기 실패");
+        return 1;
+    }
+
+    int expectedCount;
+    printf("문자 개수? ");
+    fscanf(file, "%d", &expectedCount);
+    printf("%d\n", expectedCount);
+
+    char character;
+    int frequency;
+
+    for (int i = 0; i < expectedCount; i++) { // 파일에서 문자 읽기 (공백 문자 무시)
+
+        int c;
+        while ((c = fgetc(file)) != EOF && c != '\n');
+
+        printf("문자? ");
+        fscanf(file, "%c", &character);
+        printf("%c\n", character);
+
+        printf("빈도수? ");
+        fscanf(file, "%d", &frequency);
+        printf("%d\n", frequency);
+
+        addToMap(&map, character, frequency);
+
+        if (feof(file)) {
+            break;
+        }
+    }
+
+    fclose(file);
+
+    char keys[MAX_ELEMENT];
+    int values[MAX_ELEMENT];
+    int countOfValidatedPairs;
+
+    extractMapToArray(&map, keys, values, &countOfValidatedPairs);
+
+    KeyValuePair  *pairs = (KeyValuePair *)malloc(sizeof(KeyValuePair) * countOfValidatedPairs);
+
+    qsort(pairs, countOfValidatedPairs, sizeof(KeyValuePair), compare);
+
+    huffman_tree(values, keys, countOfValidatedPairs);
+
+    // 맵 메모리 해제
+    free(map.data);
+    free(pairs);
+
     return 0;
 }
