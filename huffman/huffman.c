@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #define MAX_ELEMENT 200
 
@@ -244,8 +245,40 @@ void huffman_tree(int freq[], char ch_list[], int n) {
 
 int main(void) {
 
-    char ch_list[] = { 's', 'i', 'n', 't', 'e' };
-    int freq[] = { 4, 6, 8, 12, 15 };
+    FILE *file = fopen("../huffman/huff_data/huff_B.txt", "r");
+
+    if (file == NULL) {
+        perror("파일 열기 실패");
+        return 1;
+    }
+
+    int expectedCount;
+    printf("문자 개수? ");
+    fscanf(file, "%d", &expectedCount);
+    printf("%d\n", expectedCount);
+
+    char character;
+    int frequency;
+
+    for (int i = 0; i < expectedCount; i++) { // 파일에서 문자 읽기 (공백 문자 무시)
+
+        int c;
+        while ((c = fgetc(file)) != EOF && c != '\n');
+
+        printf("문자? ");
+        fscanf(file, "%c", &character);
+        printf("%c\n", character);
+
+        printf("빈도수? ");
+        fscanf(file, "%d", &frequency);
+        printf("%d\n", frequency);
+
+        if (feof(file)) {
+            break;
+        }
+    }
+
+    fclose(file);
 
     Map map;
     initializeMap(&map); // 초기 용량을 10으로 설정
