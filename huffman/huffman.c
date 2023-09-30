@@ -30,9 +30,10 @@ void addToMap(Map *map, char key, int value) {
     }
 
     // 중복 처리
-    for (int i = 0; i < map->size - 1; ++i) {
-        if (map->data[map->size].key == key) {
-            map->data[map->size].value = 0;
+    for (int i = 0; i < map->size; ++i) {
+
+        if (map->data[i].key == key) {
+            map->data[i].value = 0;
             return;
         }
     }
@@ -237,13 +238,10 @@ int main(void) {
     addToMap(&map, 'a', 5);
     addToMap(&map, 'b', 3);
     addToMap(&map, 'c', 7);
-
-    // 'a'와 'c'에 대한 값을 가져와서 출력
-    printf("Value for 'a': %d\n", getValue(&map, 'a'));
-    printf("Value for 'c': %d\n", getValue(&map, 'c'));
+    addToMap(&map, 'c', 5);
 
     for (int i = 0; i < map.size; i++) {
-        printf("%c ", ch_list[i]);
+        printf("%c ", map.data[i].key);
         printf("%d  ", getValue(&map, map.data[i].key));
     }
 
